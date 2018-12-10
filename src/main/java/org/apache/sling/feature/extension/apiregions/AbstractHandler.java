@@ -40,16 +40,17 @@ class AbstractHandler {
     private static final String FILE_PREFIX = "apiregions.";
     private static final String FILE_STORAGE_DIR_KEY = "fileStorage";
 
-    protected File getDataFile(HandlerContext context, String name) throws IOException {
+    protected static File getDataFile(HandlerContext context, String name) throws IOException {
         String stg = context.getConfiguration().get(FILE_STORAGE_DIR_KEY);
-        Path p;
+        File f;
         if (stg != null) {
-            p = new File(stg, name).toPath();
+            Path p = new File(stg, name).toPath();
+            f = p.toFile();
         } else {
-            p = Files.createTempFile(FILE_PREFIX, name);
+            Path p = Files.createTempFile(FILE_PREFIX, name);
+            f = p.toFile();
+            f.deleteOnExit();
         }
-        File f = p.toFile();
-        f.deleteOnExit();
 
         System.setProperty(FILE_PREFIX + name, f.getCanonicalPath());
         return f;

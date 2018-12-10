@@ -83,7 +83,7 @@ public class APIRegionMergeHandlerTest {
 
 
     @Test
-    public void testRegionExportsInheritance() throws Exception {
+    public void testRegionExportsNoInheritance() throws Exception {
         APIRegionMergeHandler armh = new APIRegionMergeHandler();
 
         Feature tf = new Feature(ArtifactId.fromMvnId("x:t:1"));
