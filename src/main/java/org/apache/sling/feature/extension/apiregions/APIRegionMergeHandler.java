@@ -64,7 +64,7 @@ public class APIRegionMergeHandler implements MergeHandler {
         if (targetEx != null && !targetEx.getName().equals(API_REGIONS_NAME))
             return;
 
-        storeBundlesOrigins(context, source);
+        storeBundleOrigins(context, source);
 
         JsonReader srcJR = Json.createReader(new StringReader(sourceEx.getJSON()));
         JsonArray srcJA = srcJR.readArray();
@@ -95,7 +95,7 @@ public class APIRegionMergeHandler implements MergeHandler {
             srcRegions.put(regionName, region);
         }
 
-        storeRegionsOrigins(context, source.getId(), srcRegions.keySet());
+        storeRegionOrigins(context, source.getId(), srcRegions.keySet());
 
         JsonArray tgtJA;
         if (targetEx != null) {
@@ -167,7 +167,7 @@ public class APIRegionMergeHandler implements MergeHandler {
         targetEx.setJSON(sw.toString());
     }
 
-    private void storeRegionsOrigins(HandlerContext context, ArtifactId featureId, Set<String> regions) {
+    private void storeRegionOrigins(HandlerContext context, ArtifactId featureId, Set<String> regions) {
         try {
             File f = AbstractHandler.getDataFile(context, "regionOrigins.properties");
 
@@ -189,7 +189,7 @@ public class APIRegionMergeHandler implements MergeHandler {
         }
     }
 
-    private void storeBundlesOrigins(HandlerContext context, Feature source) {
+    private void storeBundleOrigins(HandlerContext context, Feature source) {
         try {
             File f = AbstractHandler.getDataFile(context, "bundleOrigins.properties");
 

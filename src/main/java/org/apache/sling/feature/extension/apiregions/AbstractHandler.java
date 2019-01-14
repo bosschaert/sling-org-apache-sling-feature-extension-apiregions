@@ -37,8 +37,8 @@ class AbstractHandler {
     static final String NAME_KEY = "name";
     static final String EXPORTS_KEY = "exports";
 
-    private static final String FILE_PREFIX = "apiregions.";
-    private static final String FILE_STORAGE_DIR_KEY = "fileStorage";
+    static final String FILE_PREFIX = "apiregions.";
+    static final String FILE_STORAGE_DIR_KEY = "fileStorage";
 
     protected static File getDataFile(HandlerContext context, String name) throws IOException {
         String stg = context.getConfiguration().get(FILE_STORAGE_DIR_KEY);
