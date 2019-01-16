@@ -103,9 +103,11 @@ public class BundleArtifactFeatureHandler extends AbstractHandler implements Pos
                 if (packages != null) {
                     packageSet.addAll(Arrays.asList(packages.split(",")));
                 }
-                JsonArray eja = jo.getJsonArray(EXPORTS_KEY);
-                for (int i=0; i < eja.size(); i++) {
-                    packageSet.add(eja.getString(i));
+                if (jo.containsKey(EXPORTS_KEY)) {
+                    JsonArray eja = jo.getJsonArray(EXPORTS_KEY);
+                    for (int i=0; i < eja.size(); i++) {
+                        packageSet.add(eja.getString(i));
+                    }
                 }
                 rpMap.put(region, packageSet.stream().collect(Collectors.joining(",")));
             }
