@@ -184,7 +184,7 @@ public class APIRegionMergeHandlerTest {
         armh.merge(hc, tf, sf3, tf.getExtensions().getByName("api-regions"), sf3Ex);
 
         Properties bo = new Properties();
-        bo.load(new FileInputStream(new File(tempDir.toFile(), "bundleOrigins.properties")));
+        bo.load(new FileInputStream(new File(tempDir.toFile(), "g_t_1/bundleOrigins.properties")));
         assertEquals(3, bo.size());
 
         assertEquals("g:s1:1", bo.get("a:b1:1"));
@@ -228,7 +228,7 @@ public class APIRegionMergeHandlerTest {
         armh.merge(hc, tf, sf2, tf.getExtensions().getByName("api-regions"), sr2Ex);
 
         Properties ro = new Properties();
-        ro.load(new FileInputStream(new File(tempDir.toFile(), "regionOrigins.properties")));
+        ro.load(new FileInputStream(new File(tempDir.toFile(), "x_t_1/regionOrigins.properties")));
         assertEquals(2, ro.size());
         assertEquals("global,deprecated,internal,forbidden", ro.get("y:s:2"));
         assertEquals("global,internal,somethingelse", ro.get("z:s:1"));

@@ -40,13 +40,20 @@ class AbstractHandler {
     static final String FILE_PREFIX = "apiregions.";
     static final String FILE_STORAGE_DIR_KEY = "fileStorage";
 
-    protected static File getDataFile(HandlerContext context, String name) throws IOException {
+    protected static File getDataFile(HandlerContext context, String directory, String name) throws IOException {
         String stg = context.getConfiguration().get(FILE_STORAGE_DIR_KEY);
         File f;
         if (stg != null) {
-            Path p = new File(stg, name).toPath();
-            f = p.toFile();
+            File dir;
+            if (directory != null) {
+                dir = new File(stg, directory);
+                dir.mkdirs();
+            } else {
+                dir = new File(stg);
+            }
+            f = new File(dir, name);
         } else {
+            // If we store in the temp space we don't use the directory
             Path p = Files.createTempFile(FILE_PREFIX, name);
             f = p.toFile();
             f.deleteOnExit();
@@ -54,6 +61,10 @@ class AbstractHandler {
 
         System.setProperty(FILE_PREFIX + name, f.getCanonicalPath());
         return f;
+    }
+
+    protected static File getDataFile(HandlerContext context, String name) throws IOException {
+        return getDataFile(context, null, name);
     }
 
     protected Properties loadProperties(File file) throws IOException, FileNotFoundException {

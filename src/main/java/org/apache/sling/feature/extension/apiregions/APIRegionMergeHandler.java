@@ -17,7 +17,6 @@
 package org.apache.sling.feature.extension.apiregions;
 
 import org.apache.sling.feature.Artifact;
-import org.apache.sling.feature.ArtifactId;
 import org.apache.sling.feature.Extension;
 import org.apache.sling.feature.Feature;
 import org.apache.sling.feature.builder.HandlerContext;
@@ -64,7 +63,7 @@ public class APIRegionMergeHandler implements MergeHandler {
         if (targetEx != null && !targetEx.getName().equals(API_REGIONS_NAME))
             return;
 
-        storeBundleOrigins(context, source);
+        storeBundleOrigins(context, source, target);
 
         JsonReader srcJR = Json.createReader(new StringReader(sourceEx.getJSON()));
         JsonArray srcJA = srcJR.readArray();
@@ -95,7 +94,7 @@ public class APIRegionMergeHandler implements MergeHandler {
             srcRegions.put(regionName, region);
         }
 
-        storeRegionOrigins(context, source.getId(), srcRegions.keySet());
+        storeRegionOrigins(context, source, target, srcRegions.keySet());
 
         JsonArray tgtJA;
         if (targetEx != null) {
@@ -167,11 +166,10 @@ public class APIRegionMergeHandler implements MergeHandler {
         targetEx.setJSON(sw.toString());
     }
 
-    private void storeRegionOrigins(HandlerContext context, ArtifactId featureId, Set<String> regions) {
+    private void storeRegionOrigins(HandlerContext context, Feature source, Feature target, Set<String> regions) {
         try {
-            File f = AbstractHandler.getDataFile(context, "regionOrigins.properties");
+            File f = getFeatureDataFile(context, target, "regionOrigins.properties");
 
-            String fid = featureId.toMvnId();
             Properties p = new Properties();
             if (f.isFile()) {
                 try (FileInputStream fis = new FileInputStream(f)) {
@@ -179,6 +177,7 @@ public class APIRegionMergeHandler implements MergeHandler {
                 }
             }
 
+            String fid = source.getId().toMvnId();
             p.put(fid, regions.stream().collect(Collectors.joining(",")));
 
             try (FileOutputStream fos = new FileOutputStream(f)) {
@@ -189,9 +188,9 @@ public class APIRegionMergeHandler implements MergeHandler {
         }
     }
 
-    private void storeBundleOrigins(HandlerContext context, Feature source) {
+    private void storeBundleOrigins(HandlerContext context, Feature source, Feature target) {
         try {
-            File f = AbstractHandler.getDataFile(context, "bundleOrigins.properties");
+            File f = getFeatureDataFile(context, target, "bundleOrigins.properties");
 
             String featureId = source.getId().toMvnId();
             Properties p = new Properties();
@@ -223,6 +222,13 @@ public class APIRegionMergeHandler implements MergeHandler {
         } catch (IOException e) {
             throw new IllegalStateException("Problem storing bundle origin information", e);
         }
+    }
+
+    private File getFeatureDataFile(HandlerContext context, Feature target, String fileName) throws IOException {
+        String featureName = target.getId().toMvnId().replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
+        File f = AbstractHandler.getDataFile(context, featureName, fileName);
+        f.getParentFile().mkdirs();
+        return f;
     }
 
     private static List<String> readJsonArray(JsonArray jsonArray) {
