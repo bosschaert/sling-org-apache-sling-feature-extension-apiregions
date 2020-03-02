@@ -38,6 +38,20 @@ expose in earlier regions in the list, so the order is important.
   * `order`: A comma separated list of the region names declaring the order in which they should be found. Not all regions declared must be present, but if they are present this
 order must be obeyed.
 
+* `api-regions-crossfeature-dups`: This analyser checks whether there are exported packages in a feature model
+that does _not_ opt in to the API Regions (i.e. it does not have an API-Regions section) that overlap with exported
+packages from API regions in other feature models. It can prevent against unwanted results when packages are
+exported from the outside which should be exported from an API Region. 
+This analyser only provides a useful result when run on 
+an aggregate feature model, i.e. a feature model that was created by aggregating a number of other feature models. It uses the 
+`feature-origins` metadata to find the features that bundles were initially declared in. It then matches this with the `feature-origins` found in the `api-regions` section. Exports from  bundles from features that don't
+declare `api-regions` are compared to declared exports in the `api-regions` section. If there is overlap an error
+is reported.
+  * Configuration parameters:
+  * `regions`: a comma separated list of regions to check. If not specified all regions found are checked. This configuration item can be used to exclude certain regions from the check.
+  * `warningPackages`: if packages listed here are found to overlap, a warning instead of an error is reported. Supports either literal package names (e.g. `javax.servlet`) or wildcards with an asterisk at the end (e.g. `javax.*`).
+  * `ignoredPackages`: packages listed here are completely ignored in the analysis. Supports literal package names or wildcards with an asterisk at the end.
+
 # Additional Extensions
 
 The following extensions are also implemented by this component and made available through the Service Loader mechanism:
