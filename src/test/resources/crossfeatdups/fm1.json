@@ -9,8 +9,10 @@
       "id":"g:exp2:1",
       "feature-origins":"g:f2:1,g:f3:1"
     },
+    "g:noexp:1",
     {
-      "id":"g:noexp:1"
+      "id": "g:extra:1",
+      "feature-origins":"g:f3:1"
     }
   ],
   "api-regions:JSON|false":[
@@ -22,6 +24,11 @@
       ],
       "feature-origins":[
         "g:f1:1","g:f2:1"
+      ]
+    },{
+      "name":"global",
+      "exports":[
+        "zzz.zzz"
       ]
     }
   ]
