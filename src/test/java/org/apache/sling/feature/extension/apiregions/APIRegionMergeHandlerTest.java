@@ -16,21 +16,6 @@
  */
 package org.apache.sling.feature.extension.apiregions;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Comparator;
-
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonReader;
-
 import org.apache.sling.feature.ArtifactId;
 import org.apache.sling.feature.Extension;
 import org.apache.sling.feature.ExtensionState;
@@ -44,6 +29,24 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonReader;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class APIRegionMergeHandlerTest {
     private Path tempDir;
@@ -191,5 +194,63 @@ public class APIRegionMergeHandlerTest {
         assertEquals("top", result.getRegionNames().get(0));
         assertEquals("middle", result.getRegionNames().get(1));
         assertEquals("bottom", result.getRegionNames().get(2));
+    }
+
+    @Test
+    public void testAPIRegioOrdering2() throws Exception {
+        testAPIRegionOrdering(
+                Arrays.asList("middle"),
+                Arrays.asList("top", "middle", "bottom"),
+                Arrays.asList("top", "middle", "bottom"));
+
+        testAPIRegionOrdering(
+                Arrays.asList("r2", "r6", "r7"),
+                Arrays.asList("r1", "r2", "r3", "r4", "r5", "r7", "r8"),
+                Arrays.asList("r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8"));
+
+        testAPIRegionOrdering(
+                Arrays.asList("r2", "r3", "r6"),
+                Arrays.asList("r1", "r2", "r3", "r4", "r5", "r6"),
+                Arrays.asList("r1", "r2", "r3", "r4", "r5", "r6"));
+    }
+
+    private void testAPIRegionOrdering(List<String> targetNames, List<String> sourceNames, List<String> resultNames) throws Exception {
+        APIRegionMergeHandler armh = new APIRegionMergeHandler();
+
+        Feature f1 = new Feature(ArtifactId.fromMvnId("x:t:1"));
+        Feature f2 = new Feature(ArtifactId.fromMvnId("y:s:2"));
+
+        final ApiRegions regionsF1 = new ApiRegions();
+        for (String s : targetNames) {
+            ApiRegion r = new ApiRegion(s);
+            regionsF1.add(r);
+        }
+
+        final Extension extF1 = new Extension(ExtensionType.JSON, ApiRegions.EXTENSION_NAME, ExtensionState.OPTIONAL);
+        extF1.setJSONStructure(regionsF1.toJSONArray());
+        f1.getExtensions().add(extF1);
+
+        final ApiRegions regionsF2 = new ApiRegions();
+        for (String s : sourceNames) {
+            ApiRegion r = new ApiRegion(s);
+            regionsF2.add(r);
+        }
+
+        final Extension extF2 = new Extension(ExtensionType.JSON, ApiRegions.EXTENSION_NAME, ExtensionState.OPTIONAL);
+        extF2.setJSONStructure(regionsF2.toJSONArray());
+        f2.getExtensions().add(extF2);
+
+
+        HandlerContext hc = Mockito.mock(HandlerContext.class);
+        armh.merge(hc, f1, f2, extF1, extF2);
+
+        // order must be top - middle - bottom
+        final ApiRegions result = ApiRegions.parse((JsonArray)extF1.getJSONStructure());
+
+        List<String> actualNames = new ArrayList<>();
+        for (String s : result.getRegionNames()) {
+            actualNames.add(s);
+        }
+        assertEquals(resultNames, actualNames);
     }
 }
