@@ -225,8 +225,11 @@ public class PropertyValidator {
                 if ( context.description.getType() == PropertyType.PASSWORD ) {
                     validatePassword(context, value, true);
                 } else if ( context.description.getType() == PropertyType.STRING ) {
-                    // any string is valid, we only mark the result as skipped if a regex or options are set
-                    if ( context.description.getRegex() != null || context.description.getOptions() != null || context.description.isRequired() ) {
+                    if ( context.description.getRegex() != null) {
+                        // if a regex is specified validate against it, otherwise accept any string
+                        validateRegex(context, value);
+                    } else if ( context.description.getOptions() != null || context.description.isRequired() ) {
+                        // we mark the result as skipped if a regex or options are set
                         context.result.markSkipped();
                     }
                 } else {

@@ -257,7 +257,7 @@ public class PropertyValidatorTest {
         desc.setRegex(".*");        
         result = validator.validate("$[prop:KEY]", desc);
         assertTrue(result.isValid());
-        assertTrue(result.isSkipped());
+        assertFalse(result.isSkipped());
         desc.setRegex(null);
 
         // empty string - not required
@@ -509,6 +509,23 @@ public class PropertyValidatorTest {
         assertFalse(result.isSkipped());
     }
 
+    @Test
+    public void testPropertyDescRegex() {
+        final PropertyDescription desc = new PropertyDescription();
+        desc.setPlaceholderPolicy(PlaceholderPolicy.ALLOW);
+        desc.setRegex("^\\w+ [^ ]+$");
+        PropertyValidationResult result = validator.validate("local $[env:AEM_EXTERNALIZER_LOCAL;default=http://localhost:4502]", desc);
+        assertTrue(result.isValid());
+        assertFalse(result.isSkipped());
+
+        result = validator.validate("author http://abc.def.com:9091", desc);
+        assertTrue(result.isValid());
+        assertFalse(result.isSkipped());
+
+        result = validator.validate("local http://abc.def.com:9091 http://abc.ghi.com:9091", desc);
+        assertFalse(result.isValid());
+        assertFalse(result.isSkipped());
+    }
 
     @Test
     public void testLiveValidation() {
